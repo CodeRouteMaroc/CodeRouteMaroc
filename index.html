@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Code de la Route Maroc</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    min-height: 100vh; color: #fff; overflow-x: hidden;
+  }
+  body[dir="rtl"] { font-family: 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif; }
+
+  .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+  /* ===== HOME ===== */
+  .logo-area { text-align: center; padding: 40px 0 20px; }
+  .logo-icon {
+    width: 90px; height: 90px; margin: 0 auto 15px;
+    background: linear-gradient(135deg, #006233, #00a651);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 42px; box-shadow: 0 8px 30px rgba(0,166,81,0.4);
+    position: relative;
+  }
+  .logo-icon::after {
+    content:''; position:absolute; bottom:-5px; right:-5px;
+    width:30px; height:30px; background:#c1272d; border-radius:50%;
+    border:3px solid #0f2027;
+  }
+  .app-title { font-size: 26px; font-weight: 800; margin-bottom: 5px; letter-spacing: 0.5px; }
+  .app-subtitle { font-size: 14px; color: #a8c5d1; margin-bottom: 30px; }
+
+  .lang-toggle {
+    display: flex; background: rgba(255,255,255,0.1); border-radius: 30px;
+    padding: 5px; margin: 0 auto 25px; width: 200px;
+  }
+  .lang-btn {
+    flex:1; padding: 10px; border: none; background: transparent; color: #a8c5d1;
+    border-radius: 25px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+  }
+  .lang-btn.active { background: #00a651; color: #fff; box-shadow: 0 4px 15px rgba(0,166,81,0.4); }
+
+  .menu-btn {
+    display: flex; align-items: center; width: 100%; padding: 18px 20px;
+    margin-bottom: 14px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
+    color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+    transition: all 0.25s; text-align: left;
+  }
+  .menu-btn:hover { background: rgba(0,166,81,0.2); border-color: #00a651; transform: translateX(4px); }
+  .menu-btn .icon { font-size: 26px; margin-right: 15px; width: 40px; text-align: center; }
+  body[dir="rtl"] .menu-btn .icon { margin-right: 0; margin-left: 15px; }
+  body[dir="rtl"] .menu-btn { text-align: right; }
+  .menu-btn .badge {
+    margin-left: auto; background: #c1272d; color: #fff; font-size: 11px;
+    padding: 4px 10px; border-radius: 20px; font-weight: 700;
+  }
+  body[dir="rtl"] .menu-btn .badge { margin-left: 0; margin-right: auto; }
+
+  .stats-bar {
+    display: flex; justify-content: space-around; margin-top: 25px;
+    background: rgba(255,255,255,0.06); border-radius: 14px; padding: 15px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 800; color: #00d97e; }
+  .stat-label { font-size: 11px; color: #a8c5d1; margin-top: 3px; }
+
+  /* ===== QUIZ SCREEN ===== */
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 0; margin-bottom: 15px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.1); border: none; color: #fff;
+    width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer;
+  }
+  .progress-wrap { flex: 1; margin: 0 12px; }
+  .progress-bar {
+    height: 8px; background: rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #00a651, #00d97e);
+    border-radius: 10px; width: 0%; transition: width 0.4s ease;
+  }
+  .timer-box {
+    background: rgba(193,39,45,0.2); border: 1px solid #c1272d;
+    padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 700;
+    color: #ff6b6b; min-width: 60px; text-align: center;
+  }
+  .timer-box.warning { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+  .question-card {
+    background: rgba(255,255,255,0.08); border-radius: 18px; padding: 22px;
+    margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .q-category {
+    display: inline-block; font-size: 11px; font-weight: 700; color: #00d97e;
+    background: rgba(0,217,126,0.15); padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .q-text { font-size: 17px; line-height: 1.6; font-weight: 600; }
+
+  .option-btn {
+    display: block; width: 100%; padding: 16px 18px; margin-bottom: 10px;
+    background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 14px; color: #fff; font-size: 15px; font-weight: 500;
+    cursor: pointer; text-align: left; transition: all 0.2s;
+  }
+  body[dir="rtl"] .option-btn { text-align: right; }
+  .option-btn:hover { border-color: #00a651; background: rgba(0,166,81,0.15); }
+  .option-btn.selected { border-color: #00a651; background: rgba(0,166,81,0.25); }
+  .option-btn.correct { border-color: #00d97e; background: rgba(0,217,126,0.2); }
+  .option-btn.wrong { border-color: #ff4757; background: rgba(255,71,87,0.2); }
+  .option-btn .opt-letter {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.15);
+    font-size: 12px; font-weight: 700; margin-right: 12px; flex-shrink: 0;
+  }
+  body[dir="rtl"] .option-btn .opt-letter { margin-right: 0; margin-left: 12px; }
+
+  .quiz-actions { display: flex; gap: 10px; margin-top: 10px; }
+  .action-btn {
+    flex: 1; padding: 14px; border: none; border-radius: 14px;
+    font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-hint {
+    background: rgba(255,193,7,0.15); color: #ffc107; border: 1px solid #ffc107;
+  }
+  .btn-next { background: linear-gradient(135deg, #00a651, #00d97e); color: #fff; }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .hint-box {
+    display: none; background: rgba(255,193,7,0.1); border: 1px solid #ffc107;
+    border-radius: 12px; padding: 14px; margin-top: 12px; font-size: 13px;
+    color: #ffc107; line-height: 1.5;
+  }
+  .hint-box.show { display: block; }
+
+  /* ===== REWARDED AD OVERLAY ===== */
+  .ad-overlay {
+    display: none; position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .ad-overlay.show { display: flex; }
+  .ad-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 20px; padding: 30px 25px; text-align: center; max-width: 340px;
+    border: 1px solid rgba(255,193,7,0.3);
+  }
+  .ad-card .ad-icon { font-size: 50px; margin-bottom: 15px; }
+  .ad-card h3 { font-size: 20px; margin-bottom: 10px; color: #ffc107; }
+  .ad-card p { font-size: 14px; color: #a8c5d1; margin-bottom: 20px; line-height: 1.5; }
+  .ad-watch-btn {
+    width: 100%; padding: 15px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #f0932b, #ffc107); color: #1a1a2e;
+    font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 10px;
+  }
+  .ad-skip-btn {
+    width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2);
+    background: transparent; color: #a8c5d1; border-radius: 12px;
+    font-size: 14px; cursor: pointer;
+  }
+
+  /* ===== RESULT SCREEN ===== */
+  .result-area { text-align: center; padding: 30px 0; }
+  .result-circle {
+    width: 160px; height: 160px; margin: 0 auto 20px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 6px solid; position: relative;
+  }
+  .result-circle.pass { border-color: #00d97e; box-shadow: 0 0 40px rgba(0,217,126,0.4); }
+  .result-circle.fail { border-color: #ff4757; box-shadow: 0 0 40px rgba(255,71,87,0.3); }
+  .result-score { font-size: 42px; font-weight: 800; }
+  .result-total { font-size: 14px; color: #a8c5d1; }
+  .result-status { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+  .result-status.pass { color: #00d97e; }
+  .result-status.fail { color: #ff4757; }
+  .result-msg { font-size: 14px; color: #a8c5d1; margin-bottom: 25px; line-height: 1.6; }
+
+  .review-item {
+    background: rgba(255,255,255,0.06); border-radius: 12px; padding: 14px;
+    margin-bottom: 10px; text-align: left; border-left: 4px solid;
+  }
+  body[dir="rtl"] .review-item { text-align: right; border-left: none; border-right: 4px solid; }
+  .review-item.correct { border-color: #00d97e; }
+  .review-item.wrong { border-color: #ff4757; }
+  .review-q { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .review-a { font-size: 12px; color: #a8c5d1; }
+  .review-a .correct-ans { color: #00d97e; font-weight: 600; }
+  .review-a .wrong-ans { color: #ff4757; }
+
+  .section-title { font-size: 18px; font-weight: 700; margin: 20px 0 12px; }
+
+  /* ===== ROAD SIGNS ===== */
+  .sign-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .sign-card {
+    background: rgba(255,255,255,0.08); border-radius: 14px; padding: 15px 8px;
+    text-align: center; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .sign-shape {
+    width: 50px; height: 50px; margin: 0 auto 8px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    font-weight: 800;
+  }
+  .sign-stop { background: #c1272d; color: #fff; font-size: 10px; }
+  .sign-yield { background: #fff; border: 3px solid #c1272d; color: #c1272d; }
+  .sign-no-entry { background: #c1272d; color: #fff; }
+  .sign-priority { background: #ffc107; border: 3px solid #333; color: #333; }
+  .sign-name { font-size: 11px; color: #d0d0d0; line-height: 1.3; }
+
+  .footer-note { text-align: center; font-size: 11px; color: #6b8290; margin-top: 30px; padding-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ============ HOME SCREEN ============ -->
+  <div id="screen-home" class="screen active">
+    <div class="logo-area">
+      <div class="logo-icon">🚗</div>
+      <h1 class="app-title" data-i18n="appTitle">Code de la Route</h1>
+      <p class="app-subtitle" data-i18n="appSubtitle">Maroc — Permis Catégorie B</p>
+    </div>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('fr')">Français</button>
+      <button class="lang-btn" onclick="setLang('ar')">العربية</button>
+    </div>
+
+    <button class="menu-btn" onclick="startQuiz('practice')">
+      <span class="icon">📚</span>
+      <span data-i18n="practiceMode">Mode Entraînement</span>
+      <span class="badge" data-i18n="free">Gratuit</span>
+    </button>
+
+    <button class="menu-btn" onclick="startQuiz('exam')">
+      <span class="icon">📝</span>
+      <span data-i18n="examMode">Examen Blanc (40 Q)</span>
+      <span class="badge">⏱ 30 min</span>
+    </button>
+
+    <button class="menu-btn" onclick="showScreen('signs')">
+      <span class="icon">🚦</span>
+      <span data-i18n="roadSigns">Panneaux de Signalisation</span>
+    </button>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label" data-i18n="examsDone">Examens faits</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-best">0%</div>
+        <div class="stat-label" data-i18n="bestScore">Meilleur score</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-questions">45+</div>
+        <div class="stat-label" data-i18n="questions">Questions</div>
+      </div>
+    </div>
+
+    <p class="footer-note" data-i18n="footerNote">Préparez-vous efficacement pour l'examen NARSA</p>
+  </div>
+
+  <!-- ============ QUIZ SCREEN ============ -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="confirmQuit()">←</button>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div class="timer-box" id="timerBox" style="display:none;">30:00</div>
+    </div>
+
+    <div class="question-card">
+      <span class="q-category" id="qCategory">Signalisation</span>
+      <p class="q-text" id="qText"></p>
+    </div>
+
+    <div id="optionsContainer"></div>
+
+    <div class="hint-box" id="hintBox"></div>
+
+    <div class="quiz-actions">
+      <button class="action-btn btn-hint" id="hintBtn" onclick="useHint()" data-i18n="hint">💡 Indice</button>
+      <button class="action-btn btn-next" id="nextBtn" onclick="nextQuestion()" disabled data-i18n="next">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- ============ RESULT SCREEN ============ -->
+  <div id="screen-result" class="screen">
+    <div class="result-area">
+      <div class="result-circle" id="resultCircle">
+        <span class="result-score" id="resultScore">0</span>
+        <span class="result-total" id="resultTotal">/ 40</span>
+      </div>
+      <h2 class="result-status" id="resultStatus"></h2>
+      <p class="result-msg" id="resultMsg"></p>
+
+      <button class="menu-btn" onclick="showScreen('home')" style="justify-content:center;">
+        <span class="icon">🏠</span><span data-i18n="backHome">Retour à l'accueil</span>
+      </button>
+      <button class="menu-btn" onclick="startQuiz(currentMode)" style="justify-content:center;">
+        <span class="icon">🔄</span><span data-i18n="retry">Recommencer</span>
+      </button>
+    </div>
+
+    <h3 class="section-title" data-i18n="reviewAnswers">Correction détaillée</h3>
+    <div id="reviewContainer"></div>
+  </div>
+
+  <!-- ============ SIGNS SCREEN ============ -->
+  <div id="screen-signs" class="screen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="showScreen('home')">←</button>
+      <h2 style="font-size:18px; flex:1; margin-left:15px;" data-i18n="roadSigns">Panneaux de Signalisation</h2>
+    </div>
+    <div class="sign-grid" id="signGrid"></div>
+    <p class="footer-note" data-i18n="signsNote">50% des questions de l'examen portent sur les panneaux</p>
+  </div>
+
+</div>
+
+<!-- ============ REWARDED AD OVERLAY ============ -->
+<div class="ad-overlay" id="adOverlay">
+  <div class="ad-card">
+    <div class="ad-icon">🎬</div>
+    <h3 data-i18n="adTitle">Regardez une publicité</h3>
+    <p data-i18n="adMsg">Regardez une courte publicité pour obtenir un indice et continuer votre entraînement gratuitement !</p>
+    <button class="ad-watch-btn" onclick="watchRewardedAd()" data-i18n="watchAd">▶ Regarder (30s)</button>
+    <button class="ad-skip-btn" onclick="closeAd()" data-i18n="skipAd">Non merci, continuer sans indice</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  TRANSLATIONS
+// ============================================================
+const I18N = {
+  fr: {
+    appTitle: "Code de la Route",
+    appSubtitle: "Maroc — Permis Catégorie B",
+    practiceMode: "Mode Entraînement",
+    examMode: "Examen Blanc (40 Q)",
+    roadSigns: "Panneaux de Signalisation",
+    free: "Gratuit",
+    examsDone: "Examens faits",
+    bestScore: "Meilleur score",
+    questions: "Questions",
+    footerNote: "Préparez-vous efficacement pour l'examen NARSA",
+    hint: "💡 Indice",
+    next: "Suivant →",
+    backHome: "Retour à l'accueil",
+    retry: "Recommencer",
+    reviewAnswers: "Correction détaillée",
+    signsNote: "50% des questions de l'examen portent sur les panneaux",
+    adTitle: "Regardez une publicité",
+    adMsg: "Regardez une courte publicité pour obtenir un indice et continuer votre entraînement gratuitement !",
+    watchAd: "▶ Regarder (30s)",
+    skipAd: "Non merci, continuer sans indice",
+    passMsg: "Félicitations ! Vous êtes prêt pour l'examen !",
+    failMsg: "Continuez à vous entraîner, vous y arriverez !",
+    passed: "RÉUSSI",
+    failed: "ÉCHOUÉ",
+    yourAnswer: "Votre réponse",
+    correctAnswer: "Bonne réponse",
+    quitConfirm: "Voulez-vous vraiment quitter ? Votre progression sera perdue.",
+    catSignals: "Signalisation",
+    catRules: "Règles de circulation",
+    catSafety: "Sécurité & équipement",
+    catMechanics: "Mécanique & entretien",
+    catPriority: "Priorités",
+    catSpeed: "Vitesse & distances",
+    catParking: "Stationnement",
+    catAlcohol: "Alcool & stupéfiants",
+    catInsurance: "Assurance & documents",
+    catEnvironment: "Éco-conduite",
+    hintUsed: "Indice utilisé",
+    timeUp: "Temps écoulé !",
+    minLeft: "min restantes",
+    yourScore: "Votre score"
+  },
+  ar: {
+    appTitle: "كود الطريق",
+    appSubtitle: "المغرب — رخصة السياقة صنف ب",
+    practiceMode: "وضع التدريب",
+    examMode: "امتحان تجريبي (40 سؤال)",
+    roadSigns: "إشارات المرور",
+    free: "مجاني",
+    examsDone: "الامتحانات المكتملة",
+    bestScore: "أفضل نتيجة",
+    questions: "أسئلة",
+    footerNote: "استعد بفعالية لامتحان الوكالة الوطنية للسلامة الطرقية",
+    hint: "💡 تلميح",
+    next: "التالي ←",
+    backHome: "العودة إلى الرئيسية",
+    retry: "إعادة المحاولة",
+    reviewAnswers: "التصحيح المفصل",
+    signsNote: "50% من أسئلة الامتحان تتعلق بالإشارات الطرقية",
+    adTitle: "شاهد إعلاناً",
+    adMsg: "شاهد إعلاناً قصيراً للحصول على تلميح ومواصلة تدريبك مجاناً!",
+    watchAd: "▶ مشاهدة (30 ثانية)",
+    skipAd: "لا شكراً، متابعة بدون تلميح",
+    passMsg: "تهانينا! أنت جاهز للامتحان!",
+    failMsg: "استمر في التدريب، ستنجح!",
+    passed: "ناجح",
+    failed: "راسب",
+    yourAnswer: "إجابتك",
+    correctAnswer: "الإجابة الصحيحة",
+    quitConfirm: "هل تريد حقاً المغادرة؟ سيتم فقدان تقدمك.",
+    catSignals: "الإشارات",
+    catRules: "قواعد السير",
+    catSafety: "السلامة والمعدات",
+    catMechanics: "الميكانيك والصيانة",
+    catPriority: "الأولويات",
+    catSpeed: "السرعة والمسافات",
+    catParking: "الوقوف",
+    catAlcohol: "الكحول والمخدرات",
+    catInsurance: "التأمين والوثائق",
+    catEnvironment: "القيادة البيئية",
+    hintUsed: "تم استخدام التلميح",
+    timeUp: "انتهى الوقت!",
+    minLeft: "دقيقة متبقية",
+    yourScore: "نتيجتك"
+  }
+};
+
+// ============================================================
+//  QUESTION BANK (bilingual) — Real Code de la Route Maroc
+// ============================================================
+const QUESTIONS = [
+  {
+    cat: "signals",
+    fr: { q: "Que signifie un panneau rond rouge avec une barre blanche horizontale ?", opts: ["Interdiction de dépasser", "Interdiction d'entrer (sens interdit)", "Stationnement interdit", "Vitesse limitée à 50"], correct: 1, hint: "C'est le panneau 'sens interdit'." },
+    ar: { q: "ماذا يعني لوحة دائرية حمراء بشريط أفقي أبيض؟", opts: ["منع التجاوز", "منع الدخول (اتجاه ممنوع)", "منع الوقوف", "السرعة محدودة بـ 50"], correct: 1, hint: "إنها لوحة 'اتجاه ممنوع'." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un panneau triangulaire rouge avec un point d'exclamation signifie :", opts: ["Danger générique", "Arrêt obligatoire", "Cédez le passage", "Fin de limitation"], correct: 0, hint: "Il annonce un danger sans panneau spécifique." },
+    ar: { q: "لوثة مثلثة حمراء بعلامة تعجب تعني:", opts: ["خطر عام", "توقف إجباري", "الأولوية للآخرين", "نهاية التحديد"], correct: 0, hint: "تنبه لخطر بدون لوحة محددة." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "À l'approche d'un passage piéton, vous devez :", opts: ["Accélérer pour passer vite", "Ralentir et céder le passage aux piétons", "Klaxonner pour avertir", "Continuer sans ralentir"], correct: 1, hint: "Les piétons sont prioritaires sur le passage." },
+    ar: { q: "عند الاقتراب من ممر المشاة، يجب عليك:", opts: ["التسارع للمرور بسرعة", "التخفيض وإعطاء الأولوية للمشاة", "ضغط البوق للتحذير", "المتابعة بدون تخفيض"], correct: 1, hint: "للمشاة الأولوية على الممر." }
+  },
+  {
+    cat: "priority",
+    fr: { q: "Dans un carrefour à 4 voies sans signalisation, qui passe en premier ?", opts: ["Celui qui arrive le plus vite", "Celui qui vient de la droite", "Celui qui klaxonne", "Celui qui a la plus grosse voiture"], correct: 1, hint: "Règle de la priorité à droite." },
+    ar: { q: "في تقاطع أربع طرق بدون إشارات، من يمر أولاً؟", opts: ["من يصل بأسرع سرعة", "من يأتي من اليمين", "من يضغط البوق", "من لديه أكبر سيارة"], correct: 1, hint: "قاعدة أولوية اليمين." }
+  },
+  {
+    cat: "speed",
+    fr: { q: "En ville (agglomération), la vitesse maximale autorisée est généralement :", opts: ["30 km/h", "50 km/h", "70 km/h", "90 km/h"], correct: 1, hint: "En agglomération, la limite standard est de 50 km/h." },
+    ar: { q: "في المدينة (المجمع العمراني)، السرعة القصوى المسموح بها عموماً:", opts: ["30 كم/س", "50 كم/س", "70 كم/س", "90 كم/س"], correct: 1, hint: "في المجمع العمراني، الحد القياسي هو 50 كم/س." }
+  },
+  {
+    cat: "speed",
+    fr: { q: "Sur autoroute, la vitesse maximale autorisée pour une voiture est :", opts: ["100 km/h", "110 km/h", "120 km/h", "140 km/h"], correct: 2, hint: "Au Maroc, la limite sur autoroute est de 120 km/h." },
+    ar: { q: "على الطريق السريع، السرعة القصوى المسموح بها للسيارة:", opts: ["100 كم/س", "110 كم/س", "120 كم/س", "140 كم/س"], correct: 2, hint: "في المغرب، الحد على الطريق السريع هو 120 كم/س." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "Le port de la ceinture de sécurité est obligatoire :", opts: ["Seulement sur autoroute", "Seulement à l'avant", "Pour tous les occupants, avant et arrière", "Seulement pour le conducteur"], correct: 2, hint: "Tous les passagers doivent être attachés." },
+    ar: { q: "ارتداء حزام الأمان إجباري:", opts: ["فقط على الطريق السريع", "فقط في الأمام", "لجميع الركاب أماماً وخلفاً", "فقط للسائق"], correct: 2, hint: "يجب على جميع الركاب ربط الحزام." }
+  },
+  {
+    cat: "alcohol",
+    fr: { q: "Au Maroc, le taux d'alcoolémie maximum autorisé pour conduire est :", opts: ["0,5 g/l", "0,8 g/l", "0,2 g/l", "Zéro (interdiction totale)"], correct: 3, hint: "Le Maroc applique la tolérance zéro pour l'alcool au volant." },
+    ar: { q: "في المغرب، الحد الأقصى المسموح به للكحول في الدم للقيادة هو:", opts: ["0.5 غ/ل", "0.8 غ/ل", "0.2 غ/ل", "صفر (منع تام)"], correct: 3, hint: "يطبق المغرب مبدأ عدم التسامح مطلقاً مع الكحول والقيادة." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Vous voulez tourner à gauche à un carrefour. Un véhicule arrive en face et va tout droit. Que faites-vous ?", opts: ["Vous passez en premier", "Vous cédez le passage", "Vous klaxonnez", "Vous forcez le passage"], correct: 1, hint: "Celui qui tourne à gauche céde le passage à celui qui va tout droit." },
+    ar: { q: "تريد الانعطاف يساراً عند تقاطع. مركبة قادمة من المقابل تسير مباشرة. ماذا تفعل؟", opts: ["تمر أولاً", "تعطي الأولوية", "تضغط البوق", "تجبر المرور"], correct: 1, hint: "المنعطف يساراً يعطي الأولوية لمن يسير مباشرة." }
+  },
+  {
+    cat: "parking",
+    fr: { q: "Le stationnement est interdit :", opts: ["Sur un passage piéton", "À moins de 5 mètres d'un carrefour", "Sur une ligne jaune continue", "Toutes ces réponses"], correct: 3, hint: "Toutes ces situations interdisent le stationnement." },
+    ar: { q: "الوقوف ممنوع:", opts: ["على ممر المشاة", "على بعد أقل من 5 أمتار من التقاطع", "على خط أصفر متصل", "كل هذه الإجابات"], correct: 3, hint: "كل هذه الحالات تمنع الوقوف." }
+  },
+  {
+    cat: "mechanics",
+    fr: { q: "Le témoin d'huile moteur s'allume en rouge. Que devez-vous faire ?", opts: ["Continuer jusqu'à la prochaine station", "S'arrêter immédiatement et couper le moteur", "Accélérer pour chauffer l'huile", "Ignorer, c'est normal"], correct: 1, hint: "Un voyant rouge = danger immédiat pour le moteur." },
+    ar: { q: "مؤشر زيت المحرك يضيء بالأحمر. ماذا يجب أن تفعل؟", opts: ["المتابعة حتى المحطة التالية", "التوقف فوراً وإطفاء المحرك", "التسارع لتسخين الزيت", "تجاهل، الأمر طبيعي"], correct: 1, hint: "مؤشر أحمر = خطر فوري على المحرك." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un feu orange clignotant signifie :", opts: ["Accélérez avant qu'il passe au rouge", "Ralentissez et passez avec prudence", "Arrêt obligatoire", "Le feu est en panne"], correct: 1, hint: "Orange clignotant = prudence, pas d'arrêt obligatoire." },
+    ar: { q: "الضوء البرتقالي الوامض يعني:", opts: ["تسارع قبل أن يتحول لأحمر", "خفض السرعة ومر بحذر", "توقف إجباري", "الإشارة معطلة"], correct: 1, hint: "برتقالي وامض = حذر، لا توقف إجباري." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "Par temps de pluie, la distance de freinage :", opts: ["Diminue", "Reste la même", "Augmente (double environ)", "N'a pas d'importance"], correct: 2, hint: "La chaussée mouillée réduit l'adhérence des pneus." },
+    ar: { q: "في وقت المطر، مسافة الكبح:", opts: ["تنقص", "تبقى نفسها", "تزداد (تتضاعف تقريباً)", "لا أهمية لها"], correct: 2, hint: "الطريق المبلل يقلل من تماسك الإطارات." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Vous dépassez un véhicule. Après le dépassement, vous devez :", opts: ["Revenir immédiatement à droite", "Rester à gauche", "Revenir à droite sans couper la route au véhicule dépassé", "Klaxonner"], correct: 2, hint: "Ne coupez pas la route au véhicule que vous venez de dépasser." },
+    ar: { q: "تجاوزت مركبة. بعد التجاوز، يجب عليك:", opts: ["العودة فوراً إلى اليمين", "البقاء على اليسار", "العودة إلى اليمين دون قطع طريق المركبة المتجاوزة", "ضغط البوق"], correct: 2, hint: "لا تقطع طريق المركبة التي تجاوزتها للتو." }
+  },
+  {
+    cat: "priority",
+    fr: { q: "Un véhicule de pompiers avec gyrophare et sirène approche. Vous devez :", opts: ["Accélérer pour ne pas le gêner", "Vous ranger sur la droite et vous arrêter si nécessaire", "Continuer votre route", "Le suivre"], correct: 1, hint: "Les véhicules d'urgence sont prioritaires en toute circonstance." },
+    ar: { q: "مركبة إطفاء بمنارة وصفارة تقترب. يجب عليك:", opts: ["التسارع لعدم إعاقتها", "الانحياز إلى اليمين والتوقف إذا لزم الأمر", "متابعة طريقك", "متابعتها"], correct: 1, hint: "مركبات الطوارئ لها الأولوية في جميع الظروف." }
+  },
+  {
+    cat: "insurance",
+    fr: { q: "L'assurance automobile obligatoire au Maroc couvre :", opts: ["Les dommages à votre véhicule uniquement", "La responsabilité civile (dommages aux tiers)", "Le vol uniquement", "Rien du tout"], correct: 1, hint: "L'assurance obligatoire = responsabilité civile envers les tiers." },
+    ar: { q: "التأمين الإجباري للسيارات في المغرب يغطي:", opts: ["أضرار سيارتك فقط", "المسؤولية المدنية (أضرار الغير)", "السرقة فقط", "لا شيء على الإطلاق"], correct: 1, hint: "التأمين الإجباري = المسؤولية المدنية تجاه الغير." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un panneau bleu carré avec un 'P' blanc signifie :", opts: ["Interdiction de stationner", "Stationnement autorisé", "Arrêt interdit", "Passage piéton"], correct: 1, hint: "Bleu = autorisation, P = Parking." },
+    ar: { q: "لوثة زرقاء مربعة بحرف 'P' أبيض تعني:", opts: ["منع الوقوف", "الوقوف مسموح", "منع التوقف", "ممر المشاة"], correct: 1, hint: "أزرق = إذن، P = وقوف." }
+  },
+  {
+    cat: "speed",
+    fr: { q: "Sur route nationale (hors agglomération), la vitesse maximale est :", opts: ["80 km/h", "100 km/h", "110 km/h", "120 km/h"], correct: 1, hint: "Route nationale = 100 km/h au Maroc." },
+    ar: { q: "على الطريق الوطني (خارج المجمع العمراني)، السرعة القصوى هي:", opts: ["80 كم/س", "100 كم/س", "110 كم/س", "120 كم/س"], correct: 1, hint: "الطريق الوطني = 100 كم/س في المغرب." }
+  },
+  {
+    cat: "mechanics",
+    fr: { q: "L'usure des pneus est dangereuse car :", opts: ["Elle augmente la consommation", "Elle réduit l'adhérence et allonge le freinage", "Elle fait du bruit", "Elle n'est pas dangereuse"], correct: 1, hint: "Des pneus lisses = moins d'adhérence, surtout sous la pluie." },
+    ar: { q: "تآكل الإطارات خطير لأنه:", opts: ["يزيد الاستهلاك", "يقلل التماسك ويطيل مسافة الكبح", "يصدر ضجيجاً", "ليس خطيراً"], correct: 1, hint: "إطارات مهترئة = تماسك أقل، خاصة تحت المطر." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Dans un tunnel, il est interdit de :", opts: ["Allumer les feux de croisement", "Stationner ou faire demi-tour", "Ralentir", "Rester à droite"], correct: 1, hint: "Le tunnel est un espace confiné — stationnement et demi-tour interdits." },
+    ar: { q: "في النفق، يمنع:", opts: ["تشغيل أضواء التقاطع", "الوقوف أو الالتفاف نصف دورة", "تخفيض السرعة", "البقاء على اليمين"], correct: 1, hint: "النفق مكان محصور — الوقوف والالتفاف نصف دورة ممنوعان." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "L'utilisation du téléphone portable au volant (sans kit mains-libres) est :", opts: ["Autorisée", "Interdite et passible d'amende", "Autorisée seulement à l'arrêt", "Autorisée sur autoroute"], correct: 1, hint: "Téléphone à la main = interdiction totale, amende + points." },
+    ar: { q: "استخدام الهاتف المحمول أثناء القيادة (بدون جهاز اليد الحرة):", opts: ["مسموح", "ممنوع ويعاقب بغرامة", "مسموح فقط عند التوقف", "مسموح على الطريق السريع"], correct: 1, hint: "الهاتف باليد = منع تام، غرامة + نقاط." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un panneau rond rouge avec le nombre '50' signifie :", opts: ["Début de zone 50 km/h minimum", "Vitesse maximale 50 km/h", "Fin de limitation 50", "50 mètres avant un danger"], correct: 1, hint: "Rond rouge = interdiction/limitation maximale." },
+    ar: { q: "لوثة دائرية حمراء بالرقم '50' تعني:", opts: ["بداية منطقة 50 كم/س كحد أدنى", "السرعة القصوى 50 كم/س", "نهاية تحديد 50", "50 متر قبل خطر"], correct: 1, hint: "دائرية حمراء = منع/حد أقصى." }
+  },
+  {
+    cat: "priority",
+    fr: { q: "À l'entrée d'un giratoire (rond-point), qui a la priorité ?", opts: ["Vous qui entrez", "Les véhicules déjà dans le giratoire", "Celui qui klaxonne", "Personne"], correct: 1, hint: "Au Maroc, la priorité est à ceux qui sont déjà dans le rond-point." },
+    ar: { q: "عند دخول الدوار، من لديه الأولوية؟", opts: ["أنت الداخل", "المركبات الموجودة بالفعل في الدوار", "من يضغط البوق", "لا أحد"], correct: 1, hint: "في المغرب، الأولوية لمن هو بالفعل في الدوار." }
+  },
+  {
+    cat: "parking",
+    fr: { q: "Le stationnement en double file est :", opts: ["Autorisé la nuit", "Toujours interdit", "Autorisé 5 minutes", "Autorisé si personne ne passe"], correct: 1, hint: "Le double file gêne la circulation — toujours interdit." },
+    ar: { q: "الوقوف في صف ثانٍ هو:", opts: ["مسموح ليلاً", "ممنوع دائماً", "مسموح لمدة 5 دقائق", "مسموح إذا لم يمر أحد"], correct: 1, hint: "الصف الثاني يعيق المرور — ممنوع دائماً." }
+  },
+  {
+    cat: "environment",
+    fr: { q: "L'éco-conduite consiste à :", opts: ["Accélérer fort à chaque feu vert", "Maintenir une vitesse constante et anticiper", "Conduire vite pour arriver tôt", "Couper le moteur en roulant"], correct: 1, hint: "Anticipation + vitesse constante = moins de consommation." },
+    ar: { q: "القيادة البيئية تتمثل في:", opts: ["التسارع القوي عند كل إشارة خضراء", "الحفاظ على سرعة ثابتة والتنبؤ", "القيادة بسرعة للوصول مبكراً", "إطفاء المحرك أثناء السير"], correct: 1, hint: "التنبؤ + سرعة ثابتة = استهلاك أقل." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "Par brouillard épais, vous devez utiliser :", opts: ["Les feux de route", "Les feux antibrouillard et réduire la vitesse", "Aucun feu", "Les clignotants"], correct: 1, hint: "Antibrouillard + vitesse réduite = visibilité et sécurité." },
+    ar: { q: "في الضباب الكثيف، يجب استخدام:", opts: ["أضواء الطريق", "أضواء مضادة للضباب وتخفيض السرعة", "لا أضواء", "الأضواء الوامضة"], correct: 1, hint: "مضاد للضباب + سرعة مخفضة = رؤية وأمان." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Vous pouvez dépasser par la droite :", opts: ["Toujours", "Jamais", "Si le véhicule de devant va tourner à gauche et que vous allez tout droit", "Seulement sur autoroute"], correct: 2, hint: "Exception : celui de devant tourne à gauche, vous allez tout droit." },
+    ar: { q: "يمكنك التجاوز من اليمين:", opts: ["دائماً", "أبداً", "إذا كانت المركبة الأمامية ستنعطف يساراً وأنت تسير مباشرة", "فقط على الطريق السريع"], correct: 2, hint: "استثناء: الأمامية ستنعطف يساراً، وأنت تسير مباشرة." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un marquage au sol en zigzag jaune près d'un passage piéton signifie :", opts: ["Stationnement autorisé", "Arrêt et stationnement interdits", "Zone de livraison", "Piste cyclable"], correct: 1, hint: "Zigzag = interdiction de s'arrêter pour garantir la visibilité des piétons." },
+    ar: { q: "علامة أرضية صفراء متعرجة قرب ممر المشاة تعني:", opts: ["الوقوف مسموح", "التوقف والوقوف ممنوعان", "منطقة تسليم", "ممر للدراجات"], correct: 1, hint: "متعرجة = منع التوقف لضمان رؤية المشاة." }
+  },
+  {
+    cat: "mechanics",
+    fr: { q: "Le liquide de frein doit être vérifié :", opts: ["Jamais", "Régulièrement (pendant la révision)", "Seulement en cas d'accident", "Tous les 10 ans"], correct: 1, hint: "Le freinage est vital — vérifiez le niveau régulièrement." },
+    ar: { q: "يجب فحص سائل الفرامل:", opts: ["أبداً", "بانتظام (أثناء الصيانة)", "فقط في حالة حادث", "كل 10 سنوات"], correct: 1, hint: "الفرامل حيوية — افحص المستوى بانتظام." }
+  },
+  {
+    cat: "alcohol",
+    fr: { q: "Conduire sous l'emprise de stupéfiants (drogues) est :", opts: ["Autorisé si c'est du cannabis", "Interdit et passible de peines sévères", "Pas contrôlé au Maroc", "Autorisisé à faible dose"], correct: 1, hint: "Drogue + volant = interdiction totale, sanctions lourdes." },
+    ar: { q: "القيادة تحت تأثير المخدرات هي:", opts: ["مسموحة إذا كانت حشيشة", "ممنوعة وتعاقب بعقوبات شديدة", "لا يتم مراقبتها في المغرب", "مسموحة بجرعة منخفضة"], correct: 1, hint: "مخدر + قيادة = منع تام، عقوبات ثقيلة." }
+  },
+  {
+    cat: "speed",
+    fr: { q: "La distance de sécurité minimale avec le véhicule de devant est :", opts: ["1 mètre", "2 secondes de temps de parcours", "5 mètres", "Pas de règle"], correct: 1, hint: "Règle des 2 secondes — comptez 'un mille, deux mille'." },
+    ar: { q: "مسافة الأمان الدنيا مع المركبة الأمامية هي:", opts: ["1 متر", "ثانيتان من زمن السير", "5 أمتار", "لا قاعدة"], correct: 1, hint: "قاعدة الثانيتين — اعد 'ألف واحد، ألف اثنان'." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Les clignotants doivent être utilisés :", opts: ["Seulement sur autoroute", "Pour tout changement de direction ou de voie", "Jamais", "Seulement la nuit"], correct: 1, hint: "Tout changement de direction/voie = clignotant obligatoire." },
+    ar: { q: "يجب استخدام الأضواء الوامضة:", opts: ["فقط على الطريق السريع", "لكل تغيير اتجاه أو مسار", "أبداً", "فقط ليلاً"], correct: 1, hint: "كل تغيير اتجاه/مسار = وامض إجباري." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "Un enfant de moins de 10 ans doit voyager :", opts: ["À l'avant sans ceinture", "À l'arrière avec un siège adapté (rehausseur)", "Sur les genoux d'un passager", "N'importe où"], correct: 1, hint: "Enfants = siège adapté à l'arrière, jamais à l'avant." },
+    ar: { q: "يجب أن يسافر الطفل أقل من 10 سنوات:", opts: ["في الأمام بدون حزام", "في الخلف بكرسي مناسب (مقعد معزز)", "على حضن راكب", "أي مكان"], correct: 1, hint: "الأطفال = كرسي مناسب في الخلف، أبداً في الأمام." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un panneau triangulaire rouge avec un '!' signifie :", opts: ["Arrêt obligatoire", "Danger (autre)", "Cédez le passage", "Fin d'interdiction"], correct: 1, hint: "Le panneau de danger générique." },
+    ar: { q: "لوثة مثلثة حمراء بعلامة '!' تعني:", opts: ["توقف إجباري", "خطر (أخرى)", "الأولوية للآخرين", "نهاية المنع"], correct: 1, hint: "لوثة الخطر العام." }
+  },
+  {
+    cat: "priority",
+    fr: { q: "Le panneau 'cédez le passage' est de forme :", opts: ["Carrée bleue", "Triangulaire inversée (pointe en bas) blanche bord rouge", "Ronde rouge", "Rectangulaire jaune"], correct: 1, hint: "Triangle inversé = cédez le passage." },
+    ar: { q: "لوثة 'أعط الأولوية' شكلها:", opts: ["مربعة زرقاء", "مثلثة مقلوبة (رأس للأسفل) بيضاء بحد أحمر", "دائرية حمراء", "مستطيلة صفراء"], correct: 1, hint: "مثلثة مقلوبة = أعط الأولوية." }
+  },
+  {
+    cat: "mechanics",
+    fr: { q: "La pression des pneus doit être vérifiée :", opts: ["Quand les pneus sont chauds", "À froid (avant de rouler)", "Jamais", "Tous les 5 ans"], correct: 1, hint: "Vérifiez à froid pour une mesure précise." },
+    ar: { q: "يجب فحص ضغط الإطارات:", opts: ["عندما تكون الإطارات ساخنة", "على البارد (قبل السير)", "أبداً", "كل 5 سنوات"], correct: 1, hint: "افحص على البارد لقياس دقيق." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Sur une route à trois voies, la voie centrale est réservée :", opts: ["Au stationnement", "Au dépassement (dans les deux sens)", "Aux camions", "Aux vélos"], correct: 1, hint: "Voie centrale = voie de dépassement bidirectionnelle — dangereuse." },
+    ar: { q: "على طريق بثلاثة مسارات، المسار الوسطي مخصص:", opts: ["للوقوف", "للتجاوز (كلا الاتجاهين)", "للشاحنات", "للدراجات"], correct: 1, hint: "المسار الوسطي = مسار تجاوز ثنائي الاتجاه — خطير." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "En cas de crevaison sur autoroute, vous devez :", opts: ["Continuer jusqu'à la sortie", "Immobiliser sur la bande d'arrêt d'urgence, allumer les feux de détresse, mettre le gilet réfléchissant", "Changer la roue sur la voie de circulation", "Klaxonner pour appeler de l'aide"], correct: 1, hint: "Bande d'arrêt d'urgence + triangle + gilet = sécurité." },
+    ar: { q: "في حالة ثقب على الطريق السريع، يجب عليك:", opts: ["المتابعة حتى المخرج", "التوقف على حزام الطوارئ، تشغيل أضواء الطوارئ، ارتداء سترة عاكسة", "تغيير الإطار على مسار السير", "ضغط البوق لطلب المساعدة"], correct: 1, hint: "حزام الطوارئ + مثلث + سترة = أمان." }
+  },
+  {
+    cat: "insurance",
+    fr: { q: "Les documents obligatoires à bord sont :", opts: ["Seulement le permis", "Permis + carte grise + attestation d'assurance", "Seulement la carte grise", "Aucun document nécessaire"], correct: 1, hint: "Permis de conduire + carte grise + assurance = les 3 obligatoires." },
+    ar: { q: "الوثائق الإجبارية الموجودة بالمركبة هي:", opts: ["فقط الرخصة", "الرخصة + بطاقة التسجيل + شهادة التأمين", "فقط بطاقة التسجيل", "لا وثائق مطلوبة"], correct: 1, hint: "رخصة السياقة + بطاقة التسجيل + التأمين = الثلاثة الإجبارية." }
+  },
+  {
+    cat: "signals",
+    fr: { q: "Un feu rouge clignotant signifie :", opts: ["Passez vite", "Arrêt obligatoire (équivaut à un stop)", "Le feu va passer au vert", "Accélérez"], correct: 1, hint: "Rouge clignotant = arrêt obligatoire comme un panneau stop." },
+    ar: { q: "الضوء الأحمر الوامض يعني:", opts: ["مر بسرعة", "توقف إجباري (مثل لوحة قف)", "الضوء سيتحضر للأخضر", "تسارع"], correct: 1, hint: "أحمر وامض = توقف إجباري مثل لوحة قف." }
+  },
+  {
+    cat: "environment",
+    fr: { q: "Le filtre à particules (FAP) des voitures modernes sert à :", opts: ["Augmenter la vitesse", "Réduire les émissions polluantes", "Consommer plus de carburant", "Rien du tout"], correct: 1, hint: "FAP = réduit les particules polluantes à l'échappement." },
+    ar: { q: "مرشح الجسيمات (FAP) في السيارات الحديثة يخدم:", opts: ["زيادة السرعة", "تقليل الانبعاثات الملوثة", "استهلاك المزيد من الوقود", "لا شيء على الإطلاق"], correct: 1, hint: "FAP = يقلل الجسيمات الملوثة في العادم." }
+  },
+  {
+    cat: "rules",
+    fr: { q: "Il est interdit de faire demi-tour :", opts: ["Sur un parking", "Sur autoroute et dans un tunnel", "Dans une rue à sens unique", "Dans un parking souterrain"], correct: 1, hint: "Autoroute + tunnel = demi-tour strictement interdit." },
+    ar: { q: "يمنع الالتفاف نصف دورة:", opts: ["على موقف سيارات", "على الطريق السريع وفي النفق", "في شارع باتجاه واحد", "في موقف تحت الأرض"], correct: 1, hint: "الطريق السريع + النفق = الالتفاف نصف دورة ممنوع تماماً." }
+  },
+  {
+    cat: "speed",
+    fr: { q: "Le radar automatique (fixe) est signalé par :", opts: ["Rien du tout", "Un panneau de pré-signalisation", "Un homme avec un téléphone", "Un feu orange"], correct: 1, hint: "Au Maroc, les radars fixes sont précédés d'un panneau de signalisation." },
+    ar: { q: "الرادار الآلي (الثابت) يسبقه:", opts: ["لا شيء على الإطلاق", "لوثة تحذيرية مسبقة", "رجل بهاتف", "ضوء برتقالي"], correct: 1, hint: "في المغرب، الرادارات الثابتة تسبقها لوثة تحذيرية." }
+  },
+  {
+    cat: "safety",
+    fr: { q: "La fatigue au volant se manifeste par :", opts: ["Une meilleure concentration", "Des baisses de vigilance et des microsommeils", "Une vitesse plus stable", "Rien de particulier"], correct: 1, hint: "Fatigue = vigilance réduite, risque d'endormissement." },
+    ar: { q: "الإرهاق أثناء القيادة يتجلى بـ:", opts: ["تركيز أفضل", "انخفاض اليقظة ونوم قصير", "سرعة أكثر ثباتاً", "لا شيء خاص"], correct: 1, hint: "الإرهاق = يقظة منخفضة، خطر النعاس." }
+  },
+  {
+    cat: "mechanics",
+    fr: { q: "L'ABS (système antiblocage des roues) permet de :", opts: ["Freiner plus fort", "Garder la maîtrise de la direction pendant un freinage d'urgence", "Éviter tous les accidents", "Rouler plus vite"], correct: 1, hint: "ABS = les roues ne se bloquent pas, vous pouvez tourner en freinant." },
+    ar: { q: "نظام مانع انغلاق العجلات (ABS) يسمح بـ:", opts: ["الكبح بأقوى", "الاحتفاظ بالتحكم في التوجيه أثناء الكبح الطارئ", "تجنب جميع الحوادث", "القيادة بسرعة أكبر"], correct: 1, hint: "ABS = العجلات لا تنغلق، يمكنك الدوران أثناء الكبح." }
+  }
+];
+
+// ============================================================
+//  ROAD SIGNS DATA
+// ============================================================
+const SIGNS = [
+  { shape: "sign-stop", symbol: "STOP", fr: "Stop", ar: "قف" },
+  { shape: "sign-yield", symbol: "△", fr: "Cédez passage", ar: "أعط الأولوية" },
+  { shape: "sign-no-entry", symbol: "—", fr: "Sens interdit", ar: "اتجاه ممنوع" },
+  { shape: "sign-priority", symbol: "◇", fr: "Priorité", ar: "أولوية" },
+  { shape: "sign-stop", symbol: "50", fr: "Limite 50", ar: "حد 50" },
+  { shape: "sign-yield", symbol: "P", fr: "Parking", ar: "وقوف" },
+  { shape: "sign-no-entry", symbol: "⊘", fr: "Interdit stationner", ar: "منع الوقوف" },
+  { shape: "sign-priority", symbol: "↻", fr: "Giratoire", ar: "دوار" },
+  { shape: "sign-stop", symbol: "!", fr: "Danger", ar: "خطر" }
+];
+
+// ============================================================
+//  APP STATE
+// ============================================================
+let currentLang = 'fr';
+let currentMode = 'practice';
+let quizQuestions = [];
+let currentQIndex = 0;
+let score = 0;
+let userAnswers = [];
+let hintsUsed = 0;
+let timerInterval = null;
+let timeLeft = 30 * 60; // 30 minutes for exam
+const PASS_THRESHOLD = 32; // 32/40 to pass
+const EXAM_QUESTIONS = 40;
+const AD_INTERVAL = 10; // Show ad every 10 questions
+
+// ============================================================
+//  LANGUAGE
+// ============================================================
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('.lang-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0 && lang === 'fr') || (i === 1 && lang === 'ar'));
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang][key]) el.textContent = I18N[lang][key];
+  });
+  if (document.getElementById('screen-signs').classList.contains('active')) renderSigns();
+  if (document.getElementById('screen-quiz').classList.contains('active')) renderQuestion();
+}
+
+function t(key) { return I18N[currentLang][key] || key; }
+
+// ============================================================
+//  SCREEN MANAGEMENT
+// ============================================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'home') updateStats();
+  if (name === 'signs') renderSigns();
+}
+
+// ============================================================
+//  QUIZ LOGIC
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(mode) {
+  currentMode = mode;
+  score = 0;
+  currentQIndex = 0;
+  userAnswers = [];
+  hintsUsed = 0;
+
+  if (mode === 'exam') {
+    quizQuestions = shuffle(QUESTIONS).slice(0, EXAM_QUESTIONS);
+    timeLeft = 30 * 60;
+    startTimer();
+    document.getElementById('timerBox').style.display = 'block';
+  } else {
+    quizQuestions = shuffle(QUESTIONS).slice(0, 15); // 15 questions practice
+    document.getElementById('timerBox').style.display = 'none';
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const box = document.getElementById('timerBox');
+  box.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  if (timeLeft < 300) box.classList.add('warning');
+  else box.classList.remove('warning');
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentQIndex];
+  const qData = q[currentLang];
+  const total = quizQuestions.length;
+
+  document.getElementById('progressFill').style.width = ((currentQIndex) / total * 100) + '%';
+  document.getElementById('qCategory').textContent = t('cat' + q.cat.charAt(0).toUpperCase() + q.cat.slice(1)) || q.cat;
+  document.getElementById('qText').textContent = `${currentQIndex + 1}/${total}. ${qData.q}`;
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  qData.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(i, btn);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('hintBox').classList.remove('show');
+  document.getElementById('hintBox').textContent = '';
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('nextBtn').textContent = currentQIndex === total - 1 ? (currentLang === 'ar' ? 'إنهاء ✓' : 'Terminer ✓') : t('next');
+}
+
+function selectAnswer(index, btnEl) {
+  const q = quizQuestions[currentQIndex];
+  const qData = q[currentLang];
+  const correct = qData.correct;
+
+  document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
+
+  if (index === correct) {
+    btnEl.classList.add('correct');
+    score++;
+  } else {
+    btnEl.classList.add('wrong');
+    document.querySelectorAll('.option-btn')[correct].classList.add('correct');
+  }
+
+  userAnswers.push({ q: qData.q, your: index, correct: correct, opts: qData.opts });
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function useHint() {
+  // Show rewarded ad overlay
+  document.getElementById('adOverlay').classList.add('show');
+}
+
+function watchRewardedAd() {
+  // In real app: call AdMob rewarded ad here
+  // window.admob.rewarded.show() etc.
+  closeAd();
+  hintsUsed++;
+  const q = quizQuestions[currentQIndex];
+  const qData = q[currentLang];
+  const hintBox = document.getElementById('hintBox');
+  hintBox.textContent = `💡 ${qData.hint}`;
+  hintBox.classList.add('show');
+  // Eliminate two wrong options
+  const wrongs = [0,1,2,3].filter(i => i !== qData.correct);
+  wrongs.slice(0, 2).forEach(i => {
+    const btn = document.querySelectorAll('.option-btn')[i];
+    if (btn) { btn.style.opacity = '0.3'; btn.style.pointerEvents = 'none'; }
+  });
+}
+
+function closeAd() {
+  document.getElementById('adOverlay').classList.remove('show');
+}
+
+function nextQuestion() {
+  currentQIndex++;
+
+  // Show rewarded ad every 10 questions
+  if (currentQIndex > 0 && currentQIndex % AD_INTERVAL === 0 && currentQIndex < quizQuestions.length) {
+    document.getElementById('adOverlay').classList.add('show');
+    // Change ad message to "between quizzes"
+    document.querySelector('#adOverlay h3').textContent = currentLang === 'ar' ? 'إعلان قصير' : 'Publicité courte';
+    document.querySelector('#adOverlay p').textContent = currentLang === 'ar'
+      ? 'شاهد إعلاناً قصيراً لمواصلة الاختبار مجاناً!'
+      : 'Regardez une courte publicité pour continuer votre test gratuitement !';
+  }
+
+  if (currentQIndex >= quizQuestions.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function confirmQuit() {
+  if (confirm(t('quitConfirm'))) {
+    if (timerInterval) clearInterval(timerInterval);
+    showScreen('home');
+  }
+}
+
+// ============================================================
+//  RESULTS
+// ============================================================
+function finishQuiz() {
+  if (timerInterval) clearInterval(timerInterval);
+  const total = quizQuestions.length;
+  const passed = score >= (currentMode === 'exam' ? PASS_THRESHOLD : Math.ceil(total * 0.7));
+
+  const circle = document.getElementById('resultCircle');
+  const status = document.getElementById('resultStatus');
+  circle.className = 'result-circle ' + (passed ? 'pass' : 'fail');
+  status.className = 'result-status ' + (passed ? 'pass' : 'fail');
+  status.textContent = passed ? t('passed') : t('failed');
+
+  document.getElementById('resultScore').textContent = score;
+  document.getElementById('resultTotal').textContent = '/ ' + total;
+  document.getElementById('resultMsg').textContent = passed ? t('passMsg') : t('failMsg');
+
+  // Review
+  const review = document.getElementById('reviewContainer');
+  review.innerHTML = '';
+  userAnswers.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (a.your === a.correct ? 'correct' : 'wrong');
+    const yourAns = a.your >= 0 ? a.opts[a.your] : (currentLang === 'ar' ? 'لا إجابة' : 'Pas de réponse');
+    div.innerHTML = `
+      <div class="review-q">${i+1}. ${a.q}</div>
+      <div class="review-a">
+        ${t('yourAnswer')}: <span class="${a.your === a.correct ? 'correct-ans' : 'wrong-ans'}">${yourAns}</span><br>
+        ${t('correctAnswer')}: <span class="correct-ans">${a.opts[a.correct]}</span>
+      </div>`;
+    review.appendChild(div);
+  });
+
+  // Save stats
+  try {
+    const stats = JSON.parse(localStorage.getItem('codeRouteStats') || '{"exams":0,"best":0}');
+    stats.exams++;
+    const pct = Math.round(score / total * 100);
+    if (pct > stats.best) stats.best = pct;
+    localStorage.setItem('codeRouteStats', JSON.stringify(stats));
+  } catch(e) {}
+
+  showScreen('result');
+}
+
+function updateStats() {
+  try {
+    const stats = JSON.parse(localStorage.getItem('codeRouteStats') || '{"exams":0,"best":0}');
+    document.getElementById('stat-total').textContent = stats.exams;
+    document.getElementById('stat-best').textContent = stats.best + '%';
+  } catch(e) {}
+}
+
+// ============================================================
+//  ROAD SIGNS
+// ============================================================
+function renderSigns() {
+  const grid = document.getElementById('signGrid');
+  grid.innerHTML = '';
+  SIGNS.forEach(sign => {
+    const card = document.createElement('div');
+    card.className = 'sign-card';
+    card.innerHTML = `
+      <div class="sign-shape ${sign.shape}">${sign.symbol}</div>
+      <div class="sign-name">${sign[currentLang]}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+updateStats();
+</script>
+</body>
+</html>
